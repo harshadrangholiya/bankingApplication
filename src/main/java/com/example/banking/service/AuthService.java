@@ -1,5 +1,6 @@
 package com.example.banking.service;
 
+import com.example.banking.dto.ApiResponse;
 import com.example.banking.dto.LoginRequest;
 import com.example.banking.dto.RegisterRequest;
 import com.example.banking.dto.AuthResponse;
@@ -9,11 +10,13 @@ import com.example.banking.repository.CustomerRepository;
 import com.example.banking.repository.RoleRepository;
 import com.example.banking.config.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
@@ -34,13 +37,16 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public String register(RegisterRequest request) {
+    public ApiResponse<String> register(RegisterRequest request) {
         if (customerRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already taken!");
         }
 
-        Role customerRole = roleRepository.findByName("CUSTOMER")
-                .orElseThrow(() -> new RuntimeException("Role CUSTOMER not found"));
+        // Get role from request
+        String roleName = request.getRole() != null ? request.getRole().toUpperCase() : "CUSTOMER";
+
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role " + roleName + " not found"));
 
         Customer customer = Customer.builder()
                 .username(request.getUsername())
@@ -48,12 +54,19 @@ public class AuthService {
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
-                .roles(Set.of(customerRole))
+                .createdAt(LocalDateTime.now())
+                .roles(Set.of(role))
                 .build();
 
         customerRepository.save(customer);
-        return "User registered successfully!";
+
+        return ApiResponse.<String>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("User registered successfully with role " + roleName)
+                .data(request.getUsername())
+                .build();
     }
+
 
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(

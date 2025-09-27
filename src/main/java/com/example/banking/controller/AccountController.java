@@ -23,36 +23,57 @@ public class AccountController {
             @PathVariable Long customerId,
             @RequestParam String accountType) {
 
-        Account account = accountService.createAccount(customerId, accountType);
+        try {
+            Account account = accountService.createAccount(customerId, accountType);
 
-        // Map Account entity to AccountResponse DTO
-        AccountResponse accountResponse = AccountResponse.builder()
-                .id(account.getId())
-                .accountNumber(account.getAccountNumber())
-                .accountType(account.getAccountType())
-                .balance(account.getBalance())
-                .customerId(account.getCustomer().getId())
-                .customerName(account.getCustomer().getFullName())
-                .build();
+            // Map Account entity to AccountResponse DTO
+            AccountResponse accountResponse = AccountResponse.builder()
+                    .id(account.getId())
+                    .accountNumber(account.getAccountNumber())
+                    .accountType(account.getAccountType())
+                    .balance(account.getBalance())
+                    .customerId(account.getCustomer().getId())
+                    .customerName(account.getCustomer().getFullName())
+                    .build();
 
-        ApiResponse<AccountResponse> response = ApiResponse.<AccountResponse>builder()
-                .status(HttpStatus.CREATED.value())
-                .message("Account created successfully")
-                .data(accountResponse)
-                .build();
+            ApiResponse<AccountResponse> response = ApiResponse.<AccountResponse>builder()
+                    .status(HttpStatus.CREATED.value())
+                    .message("Account created successfully")
+                    .data(accountResponse)
+                    .build();
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (Exception ex) {
+            ApiResponse<AccountResponse> errorResponse = ApiResponse.<AccountResponse>builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message("Failed to create account: " + ex.getMessage())
+                    .data(null)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
-
 
     @GetMapping("/balance/{accountNumber}")
     public ResponseEntity<ApiResponse<BigDecimal>> getBalance(@PathVariable String accountNumber) {
-        BigDecimal balance = accountService.getBalance(accountNumber);
-        ApiResponse<BigDecimal> response = ApiResponse.<BigDecimal>builder()
-                .status(200)
-                .message("Balance fetched successfully")
-                .data(balance)
-                .build();
-        return ResponseEntity.ok(response);
+        try {
+            BigDecimal balance = accountService.getBalance(accountNumber);
+            ApiResponse<BigDecimal> response = ApiResponse.<BigDecimal>builder()
+                    .status(200)
+                    .message("Balance fetched successfully")
+                    .data(balance)
+                    .build();
+            return ResponseEntity.ok(response);
+
+        } catch (Exception ex) {
+            ApiResponse<BigDecimal> errorResponse = ApiResponse.<BigDecimal>builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message("Failed to fetch balance: " + ex.getMessage())
+                    .data(null)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
 }

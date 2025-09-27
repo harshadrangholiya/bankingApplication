@@ -21,40 +21,73 @@ public class TransactionController {
 
     @PostMapping("/deposit")
     public ResponseEntity<ApiResponse<TransactionResponse>> deposit(@RequestBody TransactionRequest request) {
-        TransactionResponse transaction = transactionService.deposit(request);
+        try {
+            TransactionResponse transaction = transactionService.deposit(request);
 
-        ApiResponse<TransactionResponse> response = ApiResponse.<TransactionResponse>builder()
-                .status(HttpStatus.OK.value())
-                .message("Deposit successful")
-                .data(transaction)
-                .build();
+            ApiResponse<TransactionResponse> response = ApiResponse.<TransactionResponse>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Deposit successful")
+                    .data(transaction)
+                    .build();
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception ex) {
+            ApiResponse<TransactionResponse> errorResponse = ApiResponse.<TransactionResponse>builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message("Deposit failed: " + ex.getMessage())
+                    .data(null)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
 
     @PostMapping("/withdraw")
     public ResponseEntity<ApiResponse<TransactionResponse>> withdraw(@RequestBody TransactionRequest request) {
-        TransactionResponse transaction = transactionService.withdraw(request);
+        try {
+            TransactionResponse transaction = transactionService.withdraw(request);
 
-        ApiResponse<TransactionResponse> response = ApiResponse.<TransactionResponse>builder()
-                .status(HttpStatus.OK.value())
-                .message("Withdrawal successful")
-                .data(transaction)
-                .build();
+            ApiResponse<TransactionResponse> response = ApiResponse.<TransactionResponse>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Withdrawal successful")
+                    .data(transaction)
+                    .build();
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception ex) {
+            ApiResponse<TransactionResponse> errorResponse = ApiResponse.<TransactionResponse>builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message("Withdrawal failed: " + ex.getMessage())
+                    .data(null)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
 
     @GetMapping("/history/{accountNumber}")
     public ResponseEntity<ApiResponse<List<TransactionDTO>>> getTransactionHistoryResponse(@PathVariable String accountNumber) {
-        List<TransactionDTO> transactions = transactionService.getTransactionHistory(accountNumber);
+        try {
+            List<TransactionDTO> transactions = transactionService.getTransactionHistory(accountNumber);
 
-        ApiResponse<List<TransactionDTO>> response = ApiResponse.<List<TransactionDTO>>builder()
-                .status(HttpStatus.OK.value())
-                .message("Transaction history fetched successfully")
-                .data(transactions)
-                .build();
+            ApiResponse<List<TransactionDTO>> response = ApiResponse.<List<TransactionDTO>>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Transaction history fetched successfully")
+                    .data(transactions)
+                    .build();
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception ex) {
+            ApiResponse<List<TransactionDTO>> errorResponse = ApiResponse.<List<TransactionDTO>>builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message("Failed to fetch transaction history: " + ex.getMessage())
+                    .data(null)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
 }

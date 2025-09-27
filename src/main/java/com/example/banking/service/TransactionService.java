@@ -11,7 +11,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -35,6 +35,7 @@ public class TransactionService {
                 .type("DEPOSIT")
                 .amount(request.getAmount())
                 .description(request.getDescription())
+                .transactionTime(LocalDateTime.now())
                 .build();
 
         transactionRepository.save(transaction);
@@ -64,6 +65,7 @@ public class TransactionService {
                 .type("WITHDRAWAL")
                 .amount(request.getAmount())
                 .description(request.getDescription())
+                .transactionTime(LocalDateTime.now())
                 .build();
 
         transactionRepository.save(transaction);

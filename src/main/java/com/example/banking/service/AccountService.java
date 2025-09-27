@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -28,6 +29,7 @@ public class AccountService {
                 .accountNumber(UUID.randomUUID().toString().substring(0, 12))
                 .accountType(accountType)
                 .balance(BigDecimal.ZERO)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         return accountRepository.save(account);
