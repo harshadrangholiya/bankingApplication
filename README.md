@@ -92,6 +92,18 @@ A **Spring Boot-based banking application** that provides REST APIs for user reg
 - **Transaction**: id, type, amount, description, transactionTime, accountId
 - **CustomerAddress**: id, addressLine1, addressLine2, city, state, postalCode, country, addressType, customerId
 
+## Generating Javadoc
+
+Javadoc can be generated for all classes and packages in the project to provide API documentation.
+
+### Using Command Line
+
+1. Open a terminal or command prompt.
+2. Navigate to the project root directory.
+3. Run the following command (adjust paths according to your setup):
+
+javadoc -d docs -sourcepath src/main/java -subpackages com.example.banking
+
 ## Usage
 
 - Use **Postman** to test APIs.
