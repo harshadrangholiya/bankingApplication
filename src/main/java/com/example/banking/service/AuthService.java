@@ -37,6 +37,17 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    /**
+     * Registers a new user in the system.
+     *
+     * <p>If the username already exists, a {@link RuntimeException} is thrown.
+     * If the role specified in the request does not exist, it is created automatically.</p>
+     *
+     * @param request the registration request containing username, password, full name, email, phone, and role
+     * @return an {@link ApiResponse} containing the username and success message
+     * @throws RuntimeException if the username is already taken
+     */
+
     public ApiResponse<String> register(RegisterRequest request) {
         if (customerRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already taken!");
@@ -74,6 +85,16 @@ public class AuthService {
     }
 
 
+    /**
+     * Authenticates a user and generates a JWT token.
+     *
+     * <p>The login request must contain the username and password. If authentication
+     * fails or the user does not exist, a {@link RuntimeException} is thrown.</p>
+     *
+     * @param request the login request containing username and password
+     * @return an {@link AuthResponse} containing the JWT token
+     * @throws RuntimeException if the user is not found
+     */
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())

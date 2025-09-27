@@ -26,6 +26,22 @@ public class ReportService {
     @Autowired
     private TransactionRepository transactionRepo;
 
+    /**
+     * Generates a monthly transaction report for all customers.
+     *
+     * <p>The report includes:</p>
+     * <ul>
+     *     <li>Customer details (ID, username, email)</li>
+     *     <li>Addresses of the customer</li>
+     *     <li>Accounts owned by the customer</li>
+     *     <li>Transactions for the specified month and year</li>
+     *     <li>Total deposit and withdrawal amounts</li>
+     * </ul>
+     *
+     * @param month the month for which the report is generated (1-12)
+     * @param year  the year for which the report is generated
+     * @return a list of {@link MonthlyTransactionReportDTO} containing the report data for each customer
+     */
     public List<MonthlyTransactionReportDTO> getMonthlyReport(int month, int year) {
         List<Customer> customers = customerRepo.findAll();
 

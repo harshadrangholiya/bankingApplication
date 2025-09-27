@@ -19,6 +19,13 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
+    /**
+     * Performs a deposit into a specified account.
+     *
+     * @param request the transaction request containing account number and amount
+     * @return a {@link ResponseEntity} with an {@link ApiResponse} containing
+     * the deposit transaction details or an error message
+     */
     @PostMapping("/deposit")
     public ResponseEntity<ApiResponse<TransactionResponse>> deposit(@RequestBody TransactionRequest request) {
         try {
@@ -43,6 +50,13 @@ public class TransactionController {
         }
     }
 
+    /**
+     * Performs a withdrawal from a specified account.
+     *
+     * @param request the transaction request containing account number and amount
+     * @return a {@link ResponseEntity} with an {@link ApiResponse} containing
+     * the withdrawal transaction details or an error message
+     */
     @PostMapping("/withdraw")
     public ResponseEntity<ApiResponse<TransactionResponse>> withdraw(@RequestBody TransactionRequest request) {
         try {
@@ -67,6 +81,13 @@ public class TransactionController {
         }
     }
 
+    /**
+     * Retrieves the transaction history for a specified account.
+     *
+     * @param accountNumber the account number whose transaction history is requested
+     * @return a {@link ResponseEntity} with an {@link ApiResponse} containing
+     * a list of {@link TransactionDTO} objects or an error message
+     */
     @GetMapping("/history/{accountNumber}")
     public ResponseEntity<ApiResponse<List<TransactionDTO>>> getTransactionHistoryResponse(@PathVariable String accountNumber) {
         try {

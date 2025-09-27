@@ -23,6 +23,17 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    /**
+     * Deposits a specified amount into an account.
+     *
+     * <p>The account balance is updated, and a corresponding transaction
+     * record is created.</p>
+     *
+     * @param request the deposit request containing account number, amount, and description
+     * @return a {@link TransactionResponse} containing updated account balance and transaction details
+     * @throws RuntimeException if the account is not found
+     */
+
     @Transactional
     public TransactionResponse deposit(TransactionRequest request) {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
@@ -48,6 +59,17 @@ public class TransactionService {
                 account.getBalance()
         );
     }
+
+    /**
+     * Withdraws a specified amount from an account.
+     *
+     * <p>The account balance is updated, and a corresponding transaction
+     * record is created. Throws an exception if the balance is insufficient.</p>
+     *
+     * @param request the withdrawal request containing account number, amount, and description
+     * @return a {@link TransactionResponse} containing updated account balance and transaction details
+     * @throws RuntimeException if the account is not found or if balance is insufficient
+     */
 
     @Transactional
     public TransactionResponse withdraw(TransactionRequest request) {
@@ -79,6 +101,14 @@ public class TransactionService {
         );
     }
 
+
+    /**
+     * Retrieves the transaction history for a given account.
+     *
+     * @param accountNumber the unique account number
+     * @return a list of {@link TransactionDTO} containing transaction details
+     * @throws RuntimeException if the account is not found
+     */
     public List<TransactionDTO> getTransactionHistory(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));

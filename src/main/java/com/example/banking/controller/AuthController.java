@@ -17,6 +17,17 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    /**
+     * Registers a new user in the system.
+     *
+     * <p>The registration request contains user details such as
+     * username, password, and role. If successful, a success message
+     * is returned. Otherwise, an error response with status 400 is sent.</p>
+     *
+     * @param request the registration request containing user details
+     * @return a {@link ResponseEntity} with an {@link ApiResponse} that includes
+     * either a success message or an error message
+     */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
         try {
@@ -32,6 +43,17 @@ public class AuthController {
         }
     }
 
+    /**
+     * Authenticates a user and generates a JWT token.
+     *
+     * <p>The login request contains the username and password. If the
+     * credentials are valid, a token and user details are returned.
+     * Otherwise, an unauthorized response is sent.</p>
+     *
+     * @param request the login request containing username and password
+     * @return a {@link ResponseEntity} with an {@link ApiResponse} that includes
+     * either the authentication response with token or an error message
+     */
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request) {
         try {

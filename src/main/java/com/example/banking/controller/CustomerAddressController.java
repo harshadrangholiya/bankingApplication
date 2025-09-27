@@ -17,6 +17,18 @@ public class CustomerAddressController {
     @Autowired
     private CustomerAddressService addressService;
 
+    /**
+     * Adds a new address for the specified customer.
+     *
+     * <p>The request body should contain the details of the address
+     * to be added. If successful, the newly added address is returned
+     * in the response.</p>
+     *
+     * @param customerId the ID of the customer
+     * @param dto        the address details to add
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse}
+     * with the added address or an error message
+     */
     @PostMapping("/addAddress")
     public ResponseEntity<ApiResponse<CustomerAddressDTO>> addAddress(
             @PathVariable Long customerId,
@@ -43,6 +55,17 @@ public class CustomerAddressController {
         }
     }
 
+    /**
+     * Retrieves all addresses for the specified customer.
+     *
+     * <p>Returns a list of {@link CustomerAddressDTO} associated with
+     * the customer. If an error occurs, an appropriate error response
+     * is returned.</p>
+     *
+     * @param customerId the ID of the customer
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse}
+     * with the list of addresses or an error message
+     */
     @GetMapping("/getAddresses")
     public ResponseEntity<ApiResponse<List<CustomerAddressDTO>>> getAddresses(@PathVariable Long customerId) {
         try {

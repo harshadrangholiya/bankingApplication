@@ -27,6 +27,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    /**
+     * Intercepts incoming HTTP requests to perform JWT-based authentication.
+     *
+     * <p>This method extracts the JWT token from the {@code Authorization} header,
+     * validates it, and if valid, sets the corresponding {@link UserDetails} into
+     * the Spring Security {@link SecurityContextHolder}. This enables Spring Security
+     * to recognize the authenticated user for the current request lifecycle.</p>
+     *
+     * <p>If the token is invalid or missing, the request proceeds without setting
+     * authentication, and access will be restricted by security rules defined
+     * elsewhere.</p>
+     *
+     * @param request      the incoming {@link HttpServletRequest} containing the JWT
+     * @param response     the outgoing {@link HttpServletResponse}
+     * @param filterChain  the filter chain to pass the request/response to the next filter
+     * @throws ServletException if the filtering process encounters a servlet-related error
+     * @throws IOException      if an I/O error occurs during request/response handling
+     */
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,

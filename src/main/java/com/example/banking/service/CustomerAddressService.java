@@ -19,7 +19,17 @@ public class CustomerAddressService {
     @Autowired
     private CustomerRepository customerRepo;
 
-    // Add address
+    /**
+     * Adds a new address for a specific customer.
+     *
+     * <p>Throws {@link RuntimeException} if the customer with the given ID
+     * does not exist.</p>
+     *
+     * @param customerId the ID of the customer
+     * @param dto        the address details to add
+     * @return the saved {@link CustomerAddressDTO} object
+     * @throws RuntimeException if the customer is not found
+     */
     public CustomerAddressDTO addAddress(Long customerId, CustomerAddressDTO dto) {
         Customer customer = customerRepo.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
@@ -39,13 +49,23 @@ public class CustomerAddressService {
         return mapToDTO(saved);
     }
 
-    // Get all addresses
+    /**
+     * Retrieves all addresses for a specific customer.
+     *
+     * @param customerId the ID of the customer
+     * @return a list of {@link CustomerAddressDTO} objects
+     */
     public List<CustomerAddressDTO> getAddresses(Long customerId) {
         List<CustomerAddress> addresses = addressRepo.findByCustomerId(customerId);
         return addresses.stream().map(this::mapToDTO).toList();
     }
 
-    // Mapper
+    /**
+     * Maps a {@link CustomerAddress} entity to a {@link CustomerAddressDTO}.
+     *
+     * @param address the entity to map
+     * @return the corresponding DTO
+     */
     private CustomerAddressDTO mapToDTO(CustomerAddress address) {
         return CustomerAddressDTO.builder()
                 .id(address.getId())

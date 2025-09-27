@@ -22,10 +22,24 @@ public class JwtUtil {
     @Value("${app.jwt.expiration}")
     private long jwtExpiration;
 
+    /**
+     * Returns the signing key used to sign and validate JWTs.
+     *
+     * @return the HMAC SHA key derived from the configured secret
+     */
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
+    /**
+     * Generates a JWT token for the given user.
+     *
+     * <p>The token contains the username as the subject, roles as a claim,
+     * issued time, and expiration time.</p>
+     *
+     * @param userDetails the authenticated user details
+     * @return a signed JWT token as a string
+     */
     public String generateToken(org.springframework.security.core.userdetails.User userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
@@ -38,6 +52,12 @@ public class JwtUtil {
                 .compact();
     }
 
+    /**
+     * Extracts the username (subject) from the given JWT token.
+     *
+     * @param token the JWT token
+     * @return the username if successfully extracted, otherwise {@code null}
+     */
     public String extractUsername(String token) {
         try {
             return Jwts.parserBuilder().setSigningKey(getSigningKey())
@@ -51,6 +71,15 @@ public class JwtUtil {
         }
     }
 
+    /**
+     * Validates the given JWT token.
+     *
+     * <p>The token is considered valid if it is correctly signed, not expired,
+     * and structurally correct.</p>
+     *
+     * @param token the JWT token
+     * @return {@code true} if the token is valid, {@code false} otherwise
+     */
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);

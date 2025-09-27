@@ -20,6 +20,17 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
+    /**
+     * Generates a monthly transaction report for the specified month and year.
+     *
+     * <p>The report includes details such as customer information, account details,
+     * transactions, total withdrawals, and total deposits for the selected period.</p>
+     *
+     * @param month the month for which the report should be generated (1-12)
+     * @param year  the year for which the report should be generated
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse} with the
+     * list of {@link MonthlyTransactionReportDTO} objects or an error message
+     */
     @GetMapping("/generate-report")
     public ResponseEntity<ApiResponse<List<MonthlyTransactionReportDTO>>> getMonthlyReport(
             @RequestParam int month,

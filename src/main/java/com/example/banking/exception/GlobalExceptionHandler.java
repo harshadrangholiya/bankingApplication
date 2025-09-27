@@ -9,7 +9,16 @@ import org.springframework.web.bind.annotation.*;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handle RuntimeException (like "Username already taken!" or "Role not found")
+    /**
+     * Handles {@link RuntimeException} exceptions.
+     *
+     * <p>Examples include validation failures, "Username already taken!",
+     * or "Role not found". Returns HTTP 400 Bad Request.</p>
+     *
+     * @param ex the runtime exception thrown
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse}
+     * with the error message and status code 400
+     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException ex) {
         ApiResponse<String> response = ApiResponse.<String>builder()
@@ -21,7 +30,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Handle other uncaught exceptions
+    /**
+     * Handles all other uncaught exceptions.
+     *
+     * <p>Returns a generic error message with HTTP 500 Internal Server Error
+     * to indicate unexpected failures.</p>
+     *
+     * @param ex the exception thrown
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse}
+     * with a generic error message and status code 500
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleException(Exception ex) {
         ApiResponse<String> response = ApiResponse.<String>builder()

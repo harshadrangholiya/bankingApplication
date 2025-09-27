@@ -18,6 +18,17 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
+    /**
+     * Creates a new account for a given customer.
+     *
+     * <p>The account type is provided as a request parameter,
+     * while the customer is identified by a path variable.</p>
+     *
+     * @param customerId  the ID of the customer for whom the account is being created
+     * @param accountType the type of account (e.g., "SAVINGS", "CURRENT")
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse}
+     * with the newly created account details or an error message
+     */
     @PostMapping("/create/{customerId}")
     public ResponseEntity<ApiResponse<AccountResponse>> createAccount(
             @PathVariable Long customerId,
@@ -55,6 +66,13 @@ public class AccountController {
         }
     }
 
+    /**
+     * Retrieves the balance of an account by its account number.
+     *
+     * @param accountNumber the unique account number
+     * @return a {@link ResponseEntity} containing an {@link ApiResponse}
+     * with the balance or an error message if the account is not found
+     */
     @GetMapping("/balance/{accountNumber}")
     public ResponseEntity<ApiResponse<BigDecimal>> getBalance(@PathVariable String accountNumber) {
         try {
