@@ -1,5 +1,6 @@
 package com.example.banking.service;
 
+import com.example.banking.dto.TransactionDTO;
 import com.example.banking.dto.TransactionRequest;
 import com.example.banking.dto.TransactionResponse;
 import com.example.banking.entity.Account;
@@ -76,9 +77,20 @@ public class TransactionService {
         );
     }
 
-    public List<Transaction> getTransactionHistory(String accountNumber) {
+    public List<TransactionDTO> getTransactionHistory(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
-        return transactionRepository.findByAccountId(account.getId());
+
+        return transactionRepository.findByAccountId(account.getId())
+                .stream()
+                .map(tx -> TransactionDTO.builder()
+                        .id(tx.getId())
+                        .amount(tx.getAmount())
+                        .description(tx.getDescription())
+                        .transactionTime(tx.getTransactionTime())
+                        .type(tx.getType())
+                        .build())
+                .toList();
     }
+
 }
