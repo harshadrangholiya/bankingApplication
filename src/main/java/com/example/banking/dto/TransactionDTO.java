@@ -14,8 +14,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TransactionDTO {
     private Long id;
+    private String accountNumber; // Add this
     private BigDecimal amount;
     private String description;
     private LocalDateTime transactionTime;
-    private String type;
+    private String type; // DEPOSIT or WITHDRAW
 }
+

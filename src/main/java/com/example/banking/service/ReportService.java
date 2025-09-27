@@ -1,0 +1,96 @@
+package com.example.banking.service;
+
+import com.example.banking.dto.AccountDTO;
+import com.example.banking.dto.CustomerAddressDTO;
+import com.example.banking.dto.MonthlyTransactionReportDTO;
+import com.example.banking.dto.TransactionDTO;
+import com.example.banking.entity.Customer;
+import com.example.banking.repository.CustomerAddressRepository;
+import com.example.banking.repository.CustomerRepository;
+import com.example.banking.repository.TransactionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Service
+public class ReportService {
+
+    @Autowired
+    private CustomerRepository customerRepo;
+
+    @Autowired
+    private CustomerAddressRepository addressRepo;
+
+    @Autowired
+    private TransactionRepository transactionRepo;
+
+    public List<MonthlyTransactionReportDTO> getMonthlyReport(int month, int year) {
+        List<Customer> customers = customerRepo.findAll();
+
+        return customers.stream().map(customer -> {
+            // Fetch addresses
+            List<CustomerAddressDTO> addresses = addressRepo.findByCustomerId(customer.getId())
+                    .stream()
+                    .map(addr -> CustomerAddressDTO.builder()
+                            .id(addr.getId())
+                            .addressLine1(addr.getAddressLine1())
+                            .addressLine2(addr.getAddressLine2())
+                            .city(addr.getCity())
+                            .state(addr.getState())
+                            .postalCode(addr.getPostalCode())
+                            .country(addr.getCountry())
+                            .addressType(addr.getAddressType())
+                            .build())
+                    .toList();
+
+            List<AccountDTO> accounts = customer.getAccounts().stream()
+                    .map(acc -> AccountDTO.builder()
+                            .id(acc.getId())
+                            .accountNumber(acc.getAccountNumber())
+                            .accountType(acc.getAccountType())
+                            .balance(acc.getBalance())
+                            .createdAt(acc.getCreatedAt())
+                            .build())
+                    .toList();
+
+            // Fetch transactions for the month
+            List<TransactionDTO> transactions = transactionRepo.findByCustomerIdAndMonthAndYear(customer.getId(), month, year)
+                    .stream()
+                    .map(tx -> TransactionDTO.builder()
+                            .id(tx.getId())
+                            .accountNumber(tx.getAccount().getAccountNumber())
+                            .amount(tx.getAmount())
+                            .description(tx.getDescription())
+                            .transactionTime(tx.getTransactionTime())
+                            .type(tx.getType())
+                            .build())
+                    .toList();
+
+
+            // Calculate totals
+            BigDecimal totalDeposit = transactions.stream()
+                    .filter(tx -> tx.getType().equalsIgnoreCase("DEPOSIT"))
+                    .map(TransactionDTO::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalWithdrawal = transactions.stream()
+                    .filter(tx -> tx.getType().equalsIgnoreCase("WITHDRAWAL"))
+                    .map(TransactionDTO::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            return MonthlyTransactionReportDTO.builder()
+                    .customerId(customer.getId())
+                    .customerName(customer.getUsername())
+                    .email(customer.getEmail())
+                    .addresses(addresses)
+                    .transactions(transactions)
+                    .accounts(accounts)
+                    .totalDeposit(totalDeposit)
+                    .totalWithdrawal(totalWithdrawal)
+                    .build();
+        }).toList();
+    }
+}
+
