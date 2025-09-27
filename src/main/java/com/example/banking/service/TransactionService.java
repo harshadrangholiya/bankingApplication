@@ -8,6 +8,7 @@ import com.example.banking.entity.Transaction;
 import com.example.banking.repository.AccountRepository;
 import com.example.banking.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class TransactionService {
 
     @Autowired
@@ -36,8 +38,13 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse deposit(TransactionRequest request) {
+        log.info("Deposit request received: accountNumber={}, amount={}", request.getAccountNumber(), request.getAmount());
+
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> {
+                    log.error("Account not found: accountNumber={}", request.getAccountNumber());
+                    return new RuntimeException("Account not found");
+                });
 
         account.setBalance(account.getBalance().add(request.getAmount()));
 
@@ -51,6 +58,9 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
         accountRepository.save(account);
+
+        log.info("Deposit successful: accountNumber={}, depositedAmount={}, newBalance={}",
+                account.getAccountNumber(), request.getAmount(), account.getBalance());
 
         return new TransactionResponse(
                 account.getAccountNumber(),
@@ -73,10 +83,17 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse withdraw(TransactionRequest request) {
+        log.info("Withdrawal request received: accountNumber={}, amount={}", request.getAccountNumber(), request.getAmount());
+
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> {
+                    log.error("Account not found: accountNumber={}", request.getAccountNumber());
+                    return new RuntimeException("Account not found");
+                });
 
         if (account.getBalance().compareTo(request.getAmount()) < 0) {
+            log.error("Insufficient balance for withdrawal: accountNumber={}, requestedAmount={}, currentBalance={}",
+                    account.getAccountNumber(), request.getAmount(), account.getBalance());
             throw new RuntimeException("Insufficient balance");
         }
 
@@ -92,6 +109,9 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
         accountRepository.save(account);
+
+        log.info("Withdrawal successful: accountNumber={}, withdrawnAmount={}, newBalance={}",
+                account.getAccountNumber(), request.getAmount(), account.getBalance());
 
         return new TransactionResponse(
                 account.getAccountNumber(),
@@ -110,10 +130,15 @@ public class TransactionService {
      * @throws RuntimeException if the account is not found
      */
     public List<TransactionDTO> getTransactionHistory(String accountNumber) {
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+        log.info("Fetching transaction history for accountNumber={}", accountNumber);
 
-        return transactionRepository.findByAccountId(account.getId())
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> {
+                    log.error("Account not found: accountNumber={}", accountNumber);
+                    return new RuntimeException("Account not found");
+                });
+
+        List<TransactionDTO> transactions = transactionRepository.findByAccountId(account.getId())
                 .stream()
                 .map(tx -> TransactionDTO.builder()
                         .id(tx.getId())
@@ -123,6 +148,9 @@ public class TransactionService {
                         .type(tx.getType())
                         .build())
                 .toList();
-    }
 
+        log.info("Transaction history retrieved: accountNumber={}, totalTransactions={}", accountNumber, transactions.size());
+
+        return transactions;
+    }
 }

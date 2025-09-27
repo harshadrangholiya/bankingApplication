@@ -9,6 +9,7 @@ import com.example.banking.entity.Role;
 import com.example.banking.repository.CustomerRepository;
 import com.example.banking.repository.RoleRepository;
 import com.example.banking.config.JwtUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
+@Slf4j
 public class AuthService {
 
     @Autowired
@@ -49,16 +51,18 @@ public class AuthService {
      */
 
     public ApiResponse<String> register(RegisterRequest request) {
+        log.info("Registering new user: username={}, role={}", request.getUsername(), request.getRole());
+
         if (customerRepository.existsByUsername(request.getUsername())) {
+            log.error("Username {} already taken", request.getUsername());
             throw new RuntimeException("Username already taken!");
         }
 
-        // Get role from request
         String roleName = request.getRole() != null ? request.getRole().toUpperCase() : "CUSTOMER";
 
-        // Find role or create if not exists
         Role role = roleRepository.findByName(roleName)
                 .orElseGet(() -> {
+                    log.info("Role {} not found, creating new role", roleName);
                     Role newRole = Role.builder()
                             .name(roleName)
                             .build();
@@ -76,6 +80,7 @@ public class AuthService {
                 .build();
 
         customerRepository.save(customer);
+        log.info("User registered successfully: username={}, role={}", request.getUsername(), roleName);
 
         return ApiResponse.<String>builder()
                 .status(HttpStatus.CREATED.value())
@@ -96,12 +101,22 @@ public class AuthService {
      * @throws RuntimeException if the user is not found
      */
     public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+        log.info("Authenticating user: username={}", request.getUsername());
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
+        } catch (Exception ex) {
+            log.error("Authentication failed for username={}: {}", request.getUsername(), ex.getMessage());
+            throw new RuntimeException("Invalid username or password");
+        }
 
         var userDetails = customerRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found: username={}", request.getUsername());
+                    return new RuntimeException("User not found");
+                });
 
         var springUser = new org.springframework.security.core.userdetails.User(
                 userDetails.getUsername(),
@@ -112,6 +127,8 @@ public class AuthService {
         );
 
         String token = jwtUtil.generateToken(springUser);
+        log.info("JWT token generated for username={}", request.getUsername());
+
         return new AuthResponse(token);
     }
 }

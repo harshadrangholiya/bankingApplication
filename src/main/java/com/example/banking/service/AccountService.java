@@ -4,6 +4,7 @@ import com.example.banking.entity.Account;
 import com.example.banking.entity.Customer;
 import com.example.banking.repository.AccountRepository;
 import com.example.banking.repository.CustomerRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class AccountService {
 
     @Autowired
@@ -33,8 +35,13 @@ public class AccountService {
      * @throws RuntimeException if the customer with the given ID does not exist
      */
     public Account createAccount(Long customerId, String accountType) {
+        log.info("Starting account creation for customerId={}, accountType={}", customerId, accountType);
+
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> {
+                    log.error("Customer not found with id={}", customerId);
+                    return new RuntimeException("Customer not found");
+                });
 
         Account account = Account.builder()
                 .customer(customer)
@@ -44,7 +51,10 @@ public class AccountService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account);
+        log.info("Account created successfully: accountNumber={}, customerId={}", savedAccount.getAccountNumber(), customerId);
+
+        return savedAccount;
     }
 
     /**
@@ -54,11 +64,16 @@ public class AccountService {
      * @return the current balance as {@link BigDecimal}
      * @throws RuntimeException if the account with the given number does not exist
      */
-
     public BigDecimal getBalance(String accountNumber) {
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+        log.info("Fetching balance for accountNumber={}", accountNumber);
 
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> {
+                    log.error("Account not found with accountNumber={}", accountNumber);
+                    return new RuntimeException("Account not found");
+                });
+
+        log.info("Balance retrieved for accountNumber={}: {}", accountNumber, account.getBalance());
         return account.getBalance();
     }
 }

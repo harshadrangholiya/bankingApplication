@@ -5,11 +5,13 @@ import com.example.banking.entity.Customer;
 import com.example.banking.entity.CustomerAddress;
 import com.example.banking.repository.CustomerAddressRepository;
 import com.example.banking.repository.CustomerRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class CustomerAddressService {
 
@@ -31,8 +33,13 @@ public class CustomerAddressService {
      * @throws RuntimeException if the customer is not found
      */
     public CustomerAddressDTO addAddress(Long customerId, CustomerAddressDTO dto) {
+        log.info("Adding address for customerId={}", customerId);
+
         Customer customer = customerRepo.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> {
+                    log.error("Customer not found with id={}", customerId);
+                    return new RuntimeException("Customer not found");
+                });
 
         CustomerAddress address = CustomerAddress.builder()
                 .customer(customer)
@@ -46,6 +53,7 @@ public class CustomerAddressService {
                 .build();
 
         CustomerAddress saved = addressRepo.save(address);
+        log.info("Address added successfully: addressId={} for customerId={}", saved.getId(), customerId);
         return mapToDTO(saved);
     }
 
@@ -56,7 +64,9 @@ public class CustomerAddressService {
      * @return a list of {@link CustomerAddressDTO} objects
      */
     public List<CustomerAddressDTO> getAddresses(Long customerId) {
+        log.info("Fetching addresses for customerId={}", customerId);
         List<CustomerAddress> addresses = addressRepo.findByCustomerId(customerId);
+        log.info("Found {} addresses for customerId={}", addresses.size(), customerId);
         return addresses.stream().map(this::mapToDTO).toList();
     }
 

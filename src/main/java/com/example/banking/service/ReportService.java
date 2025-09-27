@@ -8,6 +8,7 @@ import com.example.banking.entity.Customer;
 import com.example.banking.repository.CustomerAddressRepository;
 import com.example.banking.repository.CustomerRepository;
 import com.example.banking.repository.TransactionRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ReportService {
 
     @Autowired
@@ -43,9 +45,14 @@ public class ReportService {
      * @return a list of {@link MonthlyTransactionReportDTO} containing the report data for each customer
      */
     public List<MonthlyTransactionReportDTO> getMonthlyReport(int month, int year) {
+        log.info("Generating monthly transaction report for month={} and year={}", month, year);
+
         List<Customer> customers = customerRepo.findAll();
+        log.info("Found {} customers", customers.size());
 
         return customers.stream().map(customer -> {
+            log.info("Processing report for customerId={}, username={}", customer.getId(), customer.getUsername());
+
             // Fetch addresses
             List<CustomerAddressDTO> addresses = addressRepo.findByCustomerId(customer.getId())
                     .stream()
@@ -60,6 +67,7 @@ public class ReportService {
                             .addressType(addr.getAddressType())
                             .build())
                     .toList();
+            log.info("Found {} addresses for customerId={}", addresses.size(), customer.getId());
 
             List<AccountDTO> accounts = customer.getAccounts().stream()
                     .map(acc -> AccountDTO.builder()
@@ -70,6 +78,7 @@ public class ReportService {
                             .createdAt(acc.getCreatedAt())
                             .build())
                     .toList();
+            log.info("Found {} accounts for customerId={}", accounts.size(), customer.getId());
 
             // Fetch transactions for the month
             List<TransactionDTO> transactions = transactionRepo.findByCustomerIdAndMonthAndYear(customer.getId(), month, year)
@@ -83,7 +92,7 @@ public class ReportService {
                             .type(tx.getType())
                             .build())
                     .toList();
-
+            log.info("Found {} transactions for customerId={} in month={}", transactions.size(), customer.getId(), month);
 
             // Calculate totals
             BigDecimal totalDeposit = transactions.stream()
@@ -95,6 +104,8 @@ public class ReportService {
                     .filter(tx -> tx.getType().equalsIgnoreCase("WITHDRAWAL"))
                     .map(TransactionDTO::getAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            log.info("CustomerId={} totalDeposit={} totalWithdrawal={}", customer.getId(), totalDeposit, totalWithdrawal);
 
             return MonthlyTransactionReportDTO.builder()
                     .customerId(customer.getId())
