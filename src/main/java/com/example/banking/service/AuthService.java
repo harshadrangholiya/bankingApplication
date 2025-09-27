@@ -45,8 +45,14 @@ public class AuthService {
         // Get role from request
         String roleName = request.getRole() != null ? request.getRole().toUpperCase() : "CUSTOMER";
 
+        // Find role or create if not exists
         Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new RuntimeException("Role " + roleName + " not found"));
+                .orElseGet(() -> {
+                    Role newRole = Role.builder()
+                            .name(roleName)
+                            .build();
+                    return roleRepository.save(newRole);
+                });
 
         Customer customer = Customer.builder()
                 .username(request.getUsername())
