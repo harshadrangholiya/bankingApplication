@@ -1,0 +1,308 @@
+{
+	"info": {
+		"_postman_id": "banking-api-collection",
+		"name": "Banking API Collection",
+		"description": "Complete collection for Banking Application API endpoints including authentication, account management, and transactions",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"john_doe\",\n    \"password\": \"password123\",\n    \"fullName\": \"John Doe\",\n    \"email\": \"john.doe@email.com\",\n    \"phoneNumber\": \"+1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new customer in the banking system"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"john_doe\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login customer and get JWT token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for customer registration and login"
+		},
+		{
+			"name": "Account Management",
+			"item": [
+				{
+					"name": "Create Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/accounts/create/{{customer_id}}?accountType=SAVINGS",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts",
+								"create",
+								"{{customer_id}}"
+							],
+							"query": [
+								{
+									"key": "accountType",
+									"value": "SAVINGS",
+									"description": "Account type: SAVINGS or CURRENT"
+								}
+							]
+						},
+						"description": "Create a new account for a customer. Account types: SAVINGS, CURRENT"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Current Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/accounts/create/{{customer_id}}?accountType=CURRENT",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts",
+								"create",
+								"{{customer_id}}"
+							],
+							"query": [
+								{
+									"key": "accountType",
+									"value": "CURRENT",
+									"description": "Account type: SAVINGS or CURRENT"
+								}
+							]
+						},
+						"description": "Create a new current account for a customer"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Account Balance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/accounts/balance/{{account_number}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts",
+								"balance",
+								"{{account_number}}"
+							]
+						},
+						"description": "Get the current balance of an account"
+					},
+					"response": []
+				}
+			],
+			"description": "Account management endpoints for creating accounts and checking balances"
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Deposit Money",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountNumber\": \"{{account_number}}\",\n    \"amount\": 1000.00,\n    \"description\": \"Initial deposit\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/transactions/deposit",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions",
+								"deposit"
+							]
+						},
+						"description": "Deposit money into an account"
+					},
+					"response": []
+				},
+				{
+					"name": "Withdraw Money",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountNumber\": \"{{account_number}}\",\n    \"amount\": 500.00,\n    \"description\": \"ATM withdrawal\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/transactions/withdraw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions",
+								"withdraw"
+							]
+						},
+						"description": "Withdraw money from an account"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/transactions/history/{{account_number}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"transactions",
+								"history",
+								"{{account_number}}"
+							]
+						},
+						"description": "Get transaction history for an account"
+					},
+					"response": []
+				}
+			],
+			"description": "Transaction endpoints for deposits, withdrawals, and history"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string",
+			"description": "Base URL for the Banking API"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token obtained from login"
+		},
+		{
+			"key": "customer_id",
+			"value": "1",
+			"type": "string",
+			"description": "Customer ID for account creation"
+		},
+		{
+			"key": "account_number",
+			"value": "",
+			"type": "string",
+			"description": "Account number for transactions and balance checks"
+		}
+	]
+}
