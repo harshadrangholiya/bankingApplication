@@ -28,7 +28,7 @@ public class SecurityConfig {
      *
      * <ul>
      *   <li>Disables CSRF (since JWT handles security).</li>
-     *   <li>Allows unrestricted access to {@code /auth/**} endpoints (login & register).</li>
+     *   <li>Allows unrestricted access to {@code /auth/**} endpoints (login &amp; register).</li>
      *   <li>Requires authentication for all other endpoints.</li>
      *   <li>Configures stateless session management.</li>
      *   <li>Registers a custom JWT authentication filter before
