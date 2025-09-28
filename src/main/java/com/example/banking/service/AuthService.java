@@ -129,6 +129,12 @@ public class AuthService {
         String token = jwtUtil.generateToken(springUser);
         log.info("JWT token generated for username={}", request.getUsername());
 
-        return new AuthResponse(token);
+        // Extract role names as a list of strings
+        var roles = userDetails.getRoles().stream()
+                .map(role -> role.getName())
+                .toList();
+
+        // Return token, username, and roles
+        return new AuthResponse(userDetails.getId(), token, userDetails.getUsername(), roles);
     }
 }

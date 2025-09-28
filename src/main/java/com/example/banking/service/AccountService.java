@@ -1,15 +1,21 @@
 package com.example.banking.service;
 
+import com.example.banking.dto.AccountResponse;
 import com.example.banking.entity.Account;
 import com.example.banking.entity.Customer;
 import com.example.banking.repository.AccountRepository;
 import com.example.banking.repository.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -76,4 +82,32 @@ public class AccountService {
         log.info("Balance retrieved for accountNumber={}: {}", accountNumber, account.getBalance());
         return account.getBalance();
     }
+
+    //get All Accounts
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
+    }
+
+    // Get paginated accounts
+    public Page<AccountResponse> getAccounts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Account> accountPage = accountRepository.findAll(pageable);
+
+        // Map Account → AccountResponse
+        List<AccountResponse> accountResponses = accountPage.stream().map(account ->
+                AccountResponse.builder()
+                        .id(account.getId())
+                        .accountNumber(account.getAccountNumber())
+                        .accountType(account.getAccountType())
+                        .balance(account.getBalance())
+                        .customerId(account.getCustomer().getId())
+                        .customerName(account.getCustomer().getFullName())
+                        .build()
+        ).toList();
+
+        // Return new PageImpl to keep pagination info
+        return new PageImpl<>(accountResponses, pageable, accountPage.getTotalElements());
+    }
+
 }
