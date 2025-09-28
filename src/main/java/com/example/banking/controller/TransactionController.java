@@ -8,6 +8,7 @@ import com.example.banking.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class TransactionController {
      * @return a {@link ResponseEntity} with an {@link ApiResponse} containing
      * the deposit transaction details or an error message
      */
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @PostMapping("/deposit")
     public ResponseEntity<ApiResponse<TransactionResponse>> deposit(@RequestBody TransactionRequest request) {
         try {
@@ -57,6 +59,7 @@ public class TransactionController {
      * @return a {@link ResponseEntity} with an {@link ApiResponse} containing
      * the withdrawal transaction details or an error message
      */
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @PostMapping("/withdraw")
     public ResponseEntity<ApiResponse<TransactionResponse>> withdraw(@RequestBody TransactionRequest request) {
         try {
@@ -88,6 +91,7 @@ public class TransactionController {
      * @return a {@link ResponseEntity} with an {@link ApiResponse} containing
      * a list of {@link TransactionDTO} objects or an error message
      */
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @GetMapping("/history/{accountNumber}")
     public ResponseEntity<ApiResponse<List<TransactionDTO>>> getTransactionHistoryResponse(@PathVariable String accountNumber) {
         try {

@@ -6,6 +6,7 @@ import com.example.banking.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +32,7 @@ public class ReportController {
      * @return a {@link ResponseEntity} containing an {@link ApiResponse} with the
      * list of {@link MonthlyTransactionReportDTO} objects or an error message
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/generate-report")
     public ResponseEntity<ApiResponse<List<MonthlyTransactionReportDTO>>> getMonthlyReport(
             @RequestParam int month,

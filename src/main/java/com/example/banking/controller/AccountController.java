@@ -7,6 +7,7 @@ import com.example.banking.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -29,6 +30,7 @@ public class AccountController {
      * @return a {@link ResponseEntity} containing an {@link ApiResponse}
      * with the newly created account details or an error message
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create/{customerId}")
     public ResponseEntity<ApiResponse<AccountResponse>> createAccount(
             @PathVariable Long customerId,
@@ -73,6 +75,7 @@ public class AccountController {
      * @return a {@link ResponseEntity} containing an {@link ApiResponse}
      * with the balance or an error message if the account is not found
      */
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @GetMapping("/balance/{accountNumber}")
     public ResponseEntity<ApiResponse<BigDecimal>> getBalance(@PathVariable String accountNumber) {
         try {

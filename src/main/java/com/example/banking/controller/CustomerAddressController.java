@@ -6,6 +6,7 @@ import com.example.banking.service.CustomerAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class CustomerAddressController {
      * @return a {@link ResponseEntity} containing an {@link ApiResponse}
      * with the added address or an error message
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/addAddress")
     public ResponseEntity<ApiResponse<CustomerAddressDTO>> addAddress(
             @PathVariable Long customerId,
@@ -66,6 +68,7 @@ public class CustomerAddressController {
      * @return a {@link ResponseEntity} containing an {@link ApiResponse}
      * with the list of addresses or an error message
      */
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @GetMapping("/getAddresses")
     public ResponseEntity<ApiResponse<List<CustomerAddressDTO>>> getAddresses(@PathVariable Long customerId) {
         try {
