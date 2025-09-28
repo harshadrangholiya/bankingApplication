@@ -143,6 +143,7 @@ public class TransactionService {
                 .map(tx -> TransactionDTO.builder()
                         .id(tx.getId())
                         .amount(tx.getAmount())
+                        .accountNumber(accountNumber)
                         .description(tx.getDescription())
                         .transactionTime(tx.getTransactionTime())
                         .type(tx.getType())

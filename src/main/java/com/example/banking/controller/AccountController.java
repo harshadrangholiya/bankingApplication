@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -99,11 +100,12 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
+
     /**
      * Retrieves a list of all accounts.
      *
      * @return a {@link ResponseEntity} containing an {@link ApiResponse} with
-     *         the list of all accounts or an error message
+     * the list of all accounts or an error message
      */
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
@@ -141,6 +143,7 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/withPagination")
     public ResponseEntity<ApiResponse<Page<AccountResponse>>> getAllAccounts(
@@ -156,6 +159,44 @@ public class AccountController {
                 .build();
 
         return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
+    @GetMapping("/findAccountNumbersByCustId/{customerId}")
+    public ResponseEntity<ApiResponse<List<AccountResponse>>> getMyAccounts(@PathVariable Long customerId) {
+        try {
+
+            List<Account> accounts = accountService.getAccountsByCustomerId(customerId);
+
+            // Map Account to AccountResponse DTO
+            List<AccountResponse> accountResponses = accounts.stream()
+                    .map(account -> AccountResponse.builder()
+                            .id(account.getId())
+                            .accountNumber(account.getAccountNumber())
+                            .accountType(account.getAccountType())
+                            .balance(account.getBalance())
+                            .customerId(account.getCustomer().getId())
+                            .customerName(account.getCustomer().getFullName())
+                            .build())
+                    .toList();
+
+            ApiResponse<List<AccountResponse>> response = ApiResponse.<List<AccountResponse>>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Customer accounts fetched successfully")
+                    .data(accountResponses)
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception ex) {
+            ApiResponse<List<AccountResponse>> errorResponse = ApiResponse.<List<AccountResponse>>builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message("Failed to fetch customer accounts: " + ex.getMessage())
+                    .data(null)
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
 
 }

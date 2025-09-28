@@ -110,4 +110,8 @@ public class AccountService {
         return new PageImpl<>(accountResponses, pageable, accountPage.getTotalElements());
     }
 
+    public List<Account> getAccountsByCustomerId(Long customerId) {
+        return accountRepository.findByCustomerId(customerId);
+    }
+
 }
