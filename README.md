@@ -35,8 +35,9 @@ A **Spring Boot-based banking application** that provides REST APIs for user reg
 
 1. **Clone the repository:**
     git clone https://github.com/harshadrangholiya/bankingApplication
+    git clone https://github.com/harshadrangholiya/banking-app
 
-2. **Build the project:**
+3. **Build the project:**
     mvn clean install
 
 4. **Run the application:**
