@@ -30,7 +30,7 @@ public class CustomerAddressController {
      * @return a {@link ResponseEntity} containing an {@link ApiResponse}
      * with the added address or an error message
      */
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @PostMapping("/addAddress")
     public ResponseEntity<ApiResponse<CustomerAddressDTO>> addAddress(
             @PathVariable Long customerId,
